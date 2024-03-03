@@ -1,0 +1,15 @@
+# https://github.com/pytorch/TensorRT/issues/1203
+# https://github.com/pytorch/TensorRT/issues/1026#issuecomment-1119561746
+
+
+python3 -m pip install --upgrade tensorrt
+
+pip3 install torch-tensorrt==1.1.0 -f https://github.com/pytorch/TensorRT/releases/expanded_assets/v1.1.0
+
+
+# import torch_tensorrt (only) -> error occurs
+# import tensorrt first
+
+import tensorrt
+import torch_tensorrt
+
