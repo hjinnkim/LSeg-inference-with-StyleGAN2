@@ -89,4 +89,4 @@ url={https://openreview.net/forum?id=RriDjddCLN}
 
 
 ## Acknowledgement
-This repository heavily depends on [LSeg](https://github.com/isl-org/lang-seg), [StyleGAN2-ADA](https://github.com/NVlabs/stylegan2-ada-pytorch)
+This repository heavily depends on [LSeg](https://github.com/isl-org/lang-seg), [StyleGAN2-ADA](https://github.com/NVlabs/stylegan2-ada-pytorch), [CLIP](https://github.com/openai/CLIP)
