@@ -1,5 +1,5 @@
 # Language-driven Semantic Segmentation (LSeg) + StyleGAN2
-This repository aims to use [LSeg](https://arxiv.org/abs/2201.03546) (Li et al., ICLR 2022) with [StyleGAN2](https://arxiv.org/abs/2201.03546) (Karras et al., CVPR 2022)
+This repository aims to use [LSeg](https://arxiv.org/abs/2201.03546) (Li et al., ICLR 2022) with [StyleGAN2](https://arxiv.org/abs/2201.03546) (Karras et al., CVPR 2020)
 
 ## Usage
 ### Installation
