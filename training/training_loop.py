@@ -1,4 +1,4 @@
-# Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
+﻿# Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
 #
 # NVIDIA CORPORATION and its licensors retain all intellectual property
 # and proprietary rights in and to this software, related documentation
@@ -118,8 +118,7 @@ def training_loop(
     cudnn_benchmark         = True,     # Enable torch.backends.cudnn.benchmark?
     allow_tf32              = False,    # Enable torch.backends.cuda.matmul.allow_tf32 and torch.backends.cudnn.allow_tf32?
     abort_fn                = None,     # Callback function for determining whether to abort training. Must return consistent results across ranks.
-    progress_fn             = None,     # Callback function for updating training progress. Called for all ranks.,
-    **kwargs
+    progress_fn             = None,     # Callback function for updating training progress. Called for all ranks.
 ):
     # Initialize.
     start_time = time.time()
@@ -160,7 +159,7 @@ def training_loop(
             resume_data = legacy.load_network_pkl(f)
         for name, module in [('G', G), ('D', D), ('G_ema', G_ema)]:
             misc.copy_params_and_buffers(resume_data[name], module, require_all=False)
-    
+
     # Continue from existing pickle.
     if (resume_train_pkl is not None):
         print(f'Continuing from "{resume_train_pkl}"')
@@ -208,20 +207,20 @@ def training_loop(
             
             # Continue train from existing pickle.
             if resume_train_pkl is not None:
-                opt.load_state_dict(resume_data['f{name}_opt'])
-                            
+                opt.load_state_dict(resume_data[f'{name}_opt'])
+            
             phases += [dnnlib.EasyDict(name=name+'both', module=module, opt=opt, interval=1)]
         else: # Lazy regularization.
             mb_ratio = reg_interval / (reg_interval + 1)
             opt_kwargs = dnnlib.EasyDict(opt_kwargs)
             opt_kwargs.lr = opt_kwargs.lr * mb_ratio
-            opt_kwargs.betas = [beta ** mb_ratio for beta in opt_kwargs.betas]                
+            opt_kwargs.betas = [beta ** mb_ratio for beta in opt_kwargs.betas]
             opt = dnnlib.util.construct_class_by_name(module.parameters(), **opt_kwargs) # subclass of torch.optim.Optimizer
             
             # Continue train from existing pickle.
             if resume_train_pkl is not None:
                 opt.load_state_dict(resume_data[f'{name}_opt'])
-                
+            
             phases += [dnnlib.EasyDict(name=name+'main', module=module, opt=opt, interval=1)]
             phases += [dnnlib.EasyDict(name=name+'reg', module=module, opt=opt, interval=reg_interval)]
     for phase in phases:
@@ -243,9 +242,10 @@ def training_loop(
         grid_z = torch.randn([labels.shape[0], G.z_dim], device=device).split(batch_gpu)
         grid_c = torch.from_numpy(labels).to(device).split(batch_gpu)
         images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
-        if resume_train_pkl is None:
-            save_image_grid(images, os.path.join(run_dir, 'fakes_init.png'), drange=[-1,1], grid_size=grid_size)
-
+        # # Off Saving Images
+        # if resume_train_pkl is None:
+        #     save_image_grid(images, os.path.join(run_dir, 'fakes_init.png'), drange=[-1,1], grid_size=grid_size)
+        
     # Initialize logs.
     if rank == 0:
         print('Initializing logs...')
@@ -254,7 +254,7 @@ def training_loop(
     stats_jsonl = None
     stats_tfevents = None
     if rank == 0:
-        stats_jsonl = open(os.path.join(run_dir, 'stats.jsonl'), 'at')
+        stats_jsonl = open(os.path.join(run_dir, 'stats.jsonl'), 'wt')
         try:
             import torch.utils.tensorboard as tensorboard
             stats_tfevents = tensorboard.SummaryWriter(run_dir)
@@ -284,7 +284,7 @@ def training_loop(
                 phase.end_event.record(torch.cuda.current_stream(device))
     
     if progress_fn is not None:
-        progress_fn(cur_nimg // 1000, total_kimg)
+        progress_fn(0, total_kimg)
     while True:
 
         # Fetch training data.
@@ -314,7 +314,7 @@ def training_loop(
                 sync = (round_idx == batch_size // (batch_gpu * num_gpus) - 1)
                 gain = phase.interval
                 loss.accumulate_gradients(phase=phase.name, real_img=real_img, real_c=real_c, gen_z=gen_z, gen_c=gen_c, sync=sync, gain=gain)
-                
+
             # Update weights.
             phase.module.requires_grad_(False)
             with torch.autograd.profiler.record_function(phase.name + '_opt'):
@@ -376,10 +376,11 @@ def training_loop(
                 print()
                 print('Aborting...')
 
-        # Save image snapshot.
-        if (rank == 0) and (image_snapshot_ticks is not None) and (done or cur_tick % image_snapshot_ticks == 0):
-            images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
-            save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
+        # # Off for memory efficiency
+        # # Save image snapshot.
+        # if (rank == 0) and (image_snapshot_ticks is not None) and (done or cur_tick % image_snapshot_ticks == 0):
+        #     images = torch.cat([G_ema(z=z, c=c, noise_mode='const').cpu() for z, c in zip(grid_z, grid_c)]).numpy()
+        #     save_image_grid(images, os.path.join(run_dir, f'fakes{cur_nimg//1000:06d}.png'), drange=[-1,1], grid_size=grid_size)
 
         # Save network snapshot.
         snapshot_pkl = None
@@ -393,13 +394,12 @@ def training_loop(
                     module = copy.deepcopy(module).eval().requires_grad_(False).cpu()
                 snapshot_data[name] = module
                 del module # conserve memory
-            
             snapshot_pkl = os.path.join(run_dir, f'network-snapshot-{cur_nimg//1000:06d}.pkl')
             if rank == 0:
                 with open(snapshot_pkl, 'wb') as f:
                     pickle.dump(snapshot_data, f)
-        
-        # # Evaluate metrics.
+
+        # Evaluate metrics.
         if (snapshot_data is not None) and (len(metrics) > 0):
             if rank == 0:
                 print('Evaluating metrics...')
@@ -457,7 +457,7 @@ def training_loop(
             if rank == 0:
                 with open(snapshot_last_pkl, 'wb') as f:
                     pickle.dump(snapshot_last_data, f)
-        ######### Added for continuing train #########
+        ######### Added for continuing train #########        
         
         if done:
             break

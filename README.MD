@@ -4,11 +4,18 @@ This repository aims to use [LSeg](https://arxiv.org/abs/2201.03546) (Li et al.,
 ## Usage
 ### Installation
 
+
 ```
-conda create -f environment.yaml
+conda create -n lseg -y python=3.8
 conda activate lseg
-pip install timm==0.9.16
+conda install -y cudatoolkit=11.1 -c nvidia
+pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+conda install -y libxcrypt gxx_linux-64=7 cxx-compiler ninja cudatoolkit-dev -c conda-forge
+pip install click requests tqdm opencv-python-headless matplotlib regex ftfy timm==0.9.16
 ```
+
+
+- This environment is tested on RTX3060ti
 
 ### Download Model Weights
 
