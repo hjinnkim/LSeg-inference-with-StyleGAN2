@@ -20,7 +20,7 @@ pip install click requests tqdm opencv-python-headless matplotlib regex ftfy tim
 ### Download Model Weights
 
 1. Download LSeg weights from [Pretrained weights](https://drive.google.com/drive/folders/1h_8o-E2DBtgZDqH20wupW9FiyCP7T-m2)
-2. Put the downloaded weights under folder checkpoints as checkpoints/demo_e200.ckpt.
+2. Put the downloaded weights under folder checkpoints as checkpoints/lseg.ckpt
 
 - Note that above weights containts model weights from <a href="https://drive.google.com/file/d/1ayk6NXURI_vIPlym16f_RG3ffxBWHxvb/view?usp=sharing">Originral Pretrained Weights</a> from [Official LSeg Github](https://github.com/isl-org/lang-seg?tab=readme-ov-file#download-demo-model).
 - Directly utilizing the author provided weights needs complicated environment setup.
