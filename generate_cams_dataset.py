@@ -168,7 +168,7 @@ def main(dataset, dataset_path, save_path, flip, mask, no_seg, fp16):
     # torch.save(pretrained_weights['state_dict'], 'lseg.ckpt')
     # exit()
     
-    weights = 'lseg.ckpt'
+    weights = 'checkpoints/lseg.ckpt'
     pretrained_weights = torch.load(weights, map_location='cpu')
     module.load_state_dict(pretrained_weights, strict=False)
     

@@ -157,7 +157,7 @@ def main(ctx: click.Context, network_pkl: str, dataset, save_path, flip, mask, n
     # torch.save(pretrained_weights['state_dict'], 'lseg.ckpt')
     # module.load_state_dict(pretrained_weights['state_dict'], strict=False)
     
-    weights = 'lseg.ckpt'
+    weights = 'checkpoints/lseg.ckpt'
     pretrained_weights = torch.load(weights, map_location='cpu')
     module.load_state_dict(pretrained_weights, strict=False)
     
