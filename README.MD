@@ -63,11 +63,11 @@ pip install click requests tqdm opencv-python-headless matplotlib regex ftfy tim
 
 #### FFHQ Dataset Segmentation
 
-![Teaser image1](./examples/dataset.jpg)
+<img src="./examples/dataset.jpg" alt="Dataset Segmentation" width="95%"/>
 
 #### FFHQ StyleGAN2 Samples Segmentation
 
-![Teaser image1](./examples/stylegan2.jpg)
+<img src="./examples/stylegan2.jpg" alt="StyleGAN2 Segmentation" width="95%"/>
 
 ## Citations
 ```
